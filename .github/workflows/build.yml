@@ -1,0 +1,29 @@
+name: Build DummySite.exe
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pyinstaller cryptography
+
+      - name: Run tests
+        run: python -m unittest tests.test_stage1 tests.test_stage2_certs tests.test_stage3_service tests.test_stage4_cli tests.test_stage5_policy tests.test_stage6_features
+
+      - name: Build single EXE
+        run: python -m PyInstaller --onefile --noconsole --name DummySite DummySite.pyw
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DummySite
+          path: dist/DummySite.exe
